@@ -1,25 +1,25 @@
 const passport = require('passport');
-const { Strategy, ExtractJwt } = require('passport-jwt');
+const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const User = require('../models/User');
+require('dotenv').config();
 
-// Verifica que JWT_SECRET se está cargando correctamente
-console.log('JWT_SECRET:', process.env.JWT_SECRET);
-
-const opts = {
-  jwtFromRequest: ExtractJwt.fromExtractors([
-    ExtractJwt.fromAuthHeaderAsBearerToken(),
-    (req) => req?.cookies?.token, // Extraer desde la cookie
-  ]),
-  secretOrKey: process.env.JWT_SECRET, // Usar la clave secreta desde .env
+const options = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.JWT_SECRET,  // Asegúrate de tener la clave secreta en el archivo .env
 };
 
-// Estrategia de Passport con JWT
+// Configurar estrategia JWT para autenticación
 passport.use(
-  new Strategy(opts, async (jwt_payload, done) => {
+  new JwtStrategy(options, async (jwtPayload, done) => {
     try {
-      const user = await User.findById(jwt_payload.id);
-      if (user) return done(null, user);
-      return done(null, false);
+      // Buscar al usuario por el ID contenido en el token
+      const user = await User.findById(jwtPayload.id);
+
+      if (user) {
+        return done(null, user); // Usuario autenticado
+      } else {
+        return done(null, false); // Usuario no encontrado
+      }
     } catch (error) {
       return done(error, false);
     }
@@ -27,6 +27,3 @@ passport.use(
 );
 
 module.exports = passport;
-
-console.log(process.env);
-

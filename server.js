@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const passport = require('./config/passport');
 const sessionRoutes = require('./routes/sessions');
 const cookieParser = require('cookie-parser');
-require('dotenv').config(); // Cargar variables de entorno
+const authRoutes = require('./routes/auth');  // Nueva ruta de autenticación
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +16,7 @@ app.use(passport.initialize());
 
 // Rutas
 app.use('/api/sessions', sessionRoutes);
+app.use('/api/auth', authRoutes);  // Agregar las rutas de autenticación
 
 // Conectar a MongoDB
 mongoose

@@ -23,9 +23,21 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Ruta /current para obtener datos del usuario autenticado
+// Ruta para obtener los datos del usuario autenticado
 router.get('/current', passport.authenticate('jwt', { session: false }), (req, res) => {
-  res.json(req.user);
+  if (req.user) {
+    // Devuelve los datos del usuario autenticado
+    res.json({
+      success: true,
+      user: {
+        id: req.user._id,
+        username: req.user.username,
+        email: req.user.email,
+      },
+    });
+  } else {
+    res.status(401).json({ success: false, message: 'Usuario no autenticado' });
+  }
 });
 
 module.exports = router;
